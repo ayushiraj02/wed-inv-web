@@ -385,8 +385,17 @@
         /* PHULKARI BAND */
         .phulkari-band {
             height: 30px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="%23C9A84C" stroke-width="1" opacity="0.3"/></svg>') repeat-x center;
-            background-color: var(--charcoal);
+            background-color: var(--maroon-deep);
+            background-image:
+                repeating-linear-gradient(
+                    135deg,
+                    var(--red) 0px 6px,
+                    var(--gold) 6px 12px,
+                    var(--marigold) 12px 18px,
+                    var(--pink) 18px 24px,
+                    var(--maroon) 24px 30px
+                );
+            opacity: 0.92;
         }
 
         /* 4. WELCOME */
@@ -999,6 +1008,95 @@
         @media (prefers-reduced-motion: reduce) {
             .eq-bar { animation: none; height: 8px; }
         }
+
+        /* ============ LENIS SMOOTH SCROLL ============ */
+        html.lenis, html.lenis body {
+            height: auto;
+        }
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        /* ============ GSAP ANIMATION HELPERS ============ */
+        .gsap-reveal {
+            will-change: transform, opacity;
+        }
+        .split-line {
+            overflow: hidden;
+            display: block;
+        }
+        .split-line-inner {
+            display: block;
+            will-change: transform;
+        }
+
+        /* ============ SPLIT PARALLAX COMPONENT ============ */
+        .split-parallax {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 900px;
+            margin: 2rem auto 0;
+            overflow: hidden;
+        }
+        .split-parallax-panel {
+            overflow: hidden;
+            border-radius: 4px;
+            border: 1px solid var(--gold);
+            position: relative;
+        }
+        .split-parallax-panel img,
+        .split-parallax-panel .split-inner {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            will-change: transform;
+            display: block;
+        }
+        @media (max-width: 600px) {
+            .split-parallax {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+        }
+
+        /* ============ GOLDEN CURSOR SPARKLE ============ */
+        .cursor-sparkle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            overflow: hidden;
+        }
+        .sparkle-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #F4DFA0 0%, #E8CF8A 40%, #C9A84C 100%);
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+            box-shadow: 0 0 4px 1px rgba(232,207,138,0.5), 0 0 8px 2px rgba(201,168,76,0.2);
+        }
+
+        /* ============ SECTION CLIP REVEAL ============ */
+        .clip-reveal {
+            clip-path: inset(8% 4% 8% 4%);
+            will-change: clip-path;
+        }
+        .clip-reveal.revealed {
+            clip-path: inset(0% 0% 0% 0%);
+        }
     </style>
 </head>
 <body>
@@ -1400,6 +1498,11 @@
         <button class="lightbox-next" aria-label="Next image">&#10095;</button>
     </div>
 
+    <!-- EXTERNAL LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
+
     <!-- JAVASCRIPT -->
     <script>
         // 1. IK ONKAR OVERLAY & HERO ANIMATIONS
@@ -1759,12 +1862,47 @@ END:VCALENDAR`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         });
 
-        // FLOATING MUSIC BUTTON
+        // FLOATING MUSIC BUTTON + AUTOPLAY
         const musicBtn = document.getElementById('musicBtn');
         const bgMusic = document.getElementById('bgMusic');
         let isPlaying = false;
+        let autoplayAttempted = false;
 
-        musicBtn.addEventListener('click', () => {
+        function startMusic() {
+            if (isPlaying || !bgMusic.src) return;
+            bgMusic.play().then(() => {
+                musicBtn.classList.add('playing');
+                isPlaying = true;
+                autoplayAttempted = true;
+                // Remove interaction listeners once music is playing
+                removeAutoplayListeners();
+            }).catch(() => {
+                // Autoplay blocked — will retry on first user interaction
+                autoplayAttempted = true;
+            });
+        }
+
+        function tryAutoplayOnInteraction() {
+            if (isPlaying) return;
+            startMusic();
+        }
+
+        // Listeners for first legitimate user interaction (fallback)
+        const interactionEvents = ['click', 'touchstart', 'keydown', 'scroll'];
+        function addAutoplayListeners() {
+            interactionEvents.forEach(evt => {
+                document.addEventListener(evt, tryAutoplayOnInteraction, { once: false, passive: true });
+            });
+        }
+        function removeAutoplayListeners() {
+            interactionEvents.forEach(evt => {
+                document.removeEventListener(evt, tryAutoplayOnInteraction);
+            });
+        }
+
+        // Manual toggle (always available)
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't trigger autoplay listener
             if (isPlaying) {
                 bgMusic.pause();
                 musicBtn.classList.remove('playing');
@@ -1773,21 +1911,508 @@ END:VCALENDAR`;
                 bgMusic.play().then(() => {
                     musicBtn.classList.add('playing');
                     isPlaying = true;
+                    removeAutoplayListeners();
                 }).catch(err => {
-                    // Audio file missing or browser blocked — hide button gracefully
                     console.warn('Audio playback failed:', err.message);
                     musicBtn.style.display = 'none';
                 });
             }
         });
-        
+
         bgMusic.addEventListener('error', () => {
             musicBtn.style.display = 'none';
+            removeAutoplayListeners();
         });
+
+        // Attempt autoplay after a short delay (let page settle)
+        setTimeout(() => {
+            startMusic();
+            // If autoplay was blocked, set up interaction listeners as fallback
+            if (!isPlaying) {
+                addAutoplayListeners();
+            }
+        }, 500);
 
         // Trigger initial reveal check
         setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
 
+        // ============================================================
+        //  ENHANCEMENT PHASE: Lenis + GSAP + Cinematic Scroll
+        //  Waits for external libraries to load before initializing.
+        // ============================================================
+        function initEnhancements() {
+            if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || typeof Lenis === 'undefined') {
+                // Libraries not loaded yet — retry in 100ms
+                setTimeout(initEnhancements, 100);
+                return;
+            }
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // -------- 1. LENIS SMOOTH SCROLL --------
+            let lenis;
+            if (!prefersReducedMotion) {
+                lenis = new Lenis({
+                    duration: 1.1,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    orientation: 'vertical',
+                    gestureOrientation: 'vertical',
+                    smoothWheel: true,
+                    touchMultiplier: 1.5,
+                });
+
+                // Sync Lenis with GSAP ScrollTrigger
+                lenis.on('scroll', ScrollTrigger.update);
+                gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+                gsap.ticker.lagSmoothing(0);
+            }
+
+            // -------- 2. REGISTER SCROLLTRIGGER --------
+            gsap.registerPlugin(ScrollTrigger);
+
+            // -------- 3. GSAP SCROLL REVEALS (replaces basic scroll listener for .reveal) --------
+            // The existing scroll listener still works as a fallback,
+            // but GSAP provides smoother, more precise control.
+            if (!prefersReducedMotion) {
+                document.querySelectorAll('.reveal').forEach(el => {
+                    // Skip reveals that are already active (hero-triggered ones)
+                    if (el.classList.contains('active')) return;
+
+                    gsap.fromTo(el, {
+                        opacity: 0,
+                        y: 30
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1.2,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 88%',
+                            end: 'top 40%',
+                            toggleActions: 'play none none none',
+                            once: true,
+                            onEnter: () => el.classList.add('active')
+                        }
+                    });
+                });
+            }
+
+            // -------- 4. PARALLAX VIA GSAP (replaces manual scroll parallax) --------
+            if (!prefersReducedMotion) {
+                document.querySelectorAll('[data-parallax]').forEach(el => {
+                    const speed = parseFloat(el.getAttribute('data-parallax'));
+                    gsap.to(el, {
+                        yPercent: -15 * speed,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 0.8
+                        }
+                    });
+                });
+
+                // Remove old scroll listener since GSAP handles it now
+                // (it's harmless if both run, but cleaner to disable)
+            }
+
+            // -------- 5. SECTION TRANSITIONS --------
+            if (!prefersReducedMotion) {
+                // Welcome → Gallery: gallery images gently scale in
+                gsap.utils.toArray('.gallery-item').forEach((item, i) => {
+                    gsap.fromTo(item, {
+                        opacity: 0,
+                        y: 40,
+                        scale: 0.95
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: item,
+                            start: 'top 90%',
+                            toggleActions: 'play none none none',
+                            once: true
+                        },
+                        delay: i * 0.1
+                    });
+                });
+
+                // Countdown couple illustration: subtle scale parallax
+                const countdownImg = document.querySelector('.illustration-wrap img');
+                if (countdownImg) {
+                    gsap.fromTo(countdownImg, {
+                        scale: 1.06,
+                        opacity: 0.7
+                    }, {
+                        scale: 1,
+                        opacity: 1,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: countdownImg,
+                            start: 'top 95%',
+                            end: 'top 30%',
+                            scrub: 0.6
+                        }
+                    });
+                }
+
+                // Timeline events: staggered entrance
+                gsap.utils.toArray('.timeline-event').forEach((ev, i) => {
+                    gsap.fromTo(ev, {
+                        opacity: 0,
+                        x: -20
+                    }, {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.7,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: ev,
+                            start: 'top 85%',
+                            toggleActions: 'play none none none',
+                            once: true
+                        },
+                        delay: i * 0.15
+                    });
+                });
+
+                // Event cards: staggered scale entrance
+                gsap.utils.toArray('.event-card').forEach((card, i) => {
+                    gsap.fromTo(card, {
+                        opacity: 0,
+                        y: 30,
+                        scale: 0.96
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.7,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 88%',
+                            toggleActions: 'play none none none',
+                            once: true
+                        },
+                        delay: i * 0.12
+                    });
+                });
+
+                // Dress code columns: slide in from sides
+                const dressCols = document.querySelectorAll('.dress-col');
+                if (dressCols.length >= 2) {
+                    gsap.fromTo(dressCols[0], { opacity: 0, x: -30 }, {
+                        opacity: 1, x: 0, duration: 0.9, ease: 'power2.out',
+                        scrollTrigger: { trigger: dressCols[0], start: 'top 85%', once: true }
+                    });
+                    gsap.fromTo(dressCols[1], { opacity: 0, x: 30 }, {
+                        opacity: 1, x: 0, duration: 0.9, ease: 'power2.out',
+                        scrollTrigger: { trigger: dressCols[1], start: 'top 85%', once: true }
+                    });
+                }
+
+                // RSVP radio cards: gentle entrance
+                gsap.utils.toArray('.rsvp-radio-card').forEach((card, i) => {
+                    gsap.fromTo(card, {
+                        opacity: 0,
+                        y: 15
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 90%',
+                            once: true
+                        },
+                        delay: i * 0.15
+                    });
+                });
+
+                // Closing illustration: fade + subtle scale
+                const closingImg = document.querySelector('.closing-image-wrap');
+                if (closingImg) {
+                    gsap.fromTo(closingImg, {
+                        opacity: 0,
+                        scale: 0.92
+                    }, {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 1.2,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: closingImg,
+                            start: 'top 85%',
+                            toggleActions: 'play none none none',
+                            once: true
+                        }
+                    });
+                }
+
+                // Phulkari bands: gentle horizontal clip reveal
+                document.querySelectorAll('.phulkari-band').forEach(band => {
+                    gsap.fromTo(band, {
+                        clipPath: 'inset(0 50% 0 50%)'
+                    }, {
+                        clipPath: 'inset(0 0% 0 0%)',
+                        duration: 1,
+                        ease: 'power2.inOut',
+                        scrollTrigger: {
+                            trigger: band,
+                            start: 'top 92%',
+                            toggleActions: 'play none none none',
+                            once: true
+                        }
+                    });
+                });
+            }
+
+            // -------- 6. TYPOGRAPHY SCROLL ANIMATIONS --------
+            if (!prefersReducedMotion) {
+                // Animate major eyebrow headings: fade + slight upward + letter-spacing
+                document.querySelectorAll('.eyebrow').forEach(eyebrow => {
+                    // Skip if inside hero (preserve hero exactly)
+                    if (eyebrow.closest('#hero-wrap')) return;
+
+                    gsap.fromTo(eyebrow, {
+                        opacity: 0,
+                        y: 12,
+                        letterSpacing: '0.08em'
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        letterSpacing: '0.15em',
+                        duration: 0.9,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: eyebrow,
+                            start: 'top 88%',
+                            once: true
+                        }
+                    });
+                });
+
+                // Animate serif headings in key sections
+                const headingSelectors = [
+                    '.venue-name',
+                    '.closing-names',
+                    '#family h2',
+                    '.details-text'
+                ];
+                headingSelectors.forEach(sel => {
+                    const el = document.querySelector(sel);
+                    if (!el) return;
+                    gsap.fromTo(el, {
+                        opacity: 0,
+                        y: 20
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 85%',
+                            once: true
+                        }
+                    });
+                });
+
+                // Countdown numbers: gentle scale entrance
+                document.querySelectorAll('.countdown-val').forEach((num, i) => {
+                    gsap.fromTo(num, {
+                        opacity: 0,
+                        scale: 0.8
+                    }, {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.6,
+                        ease: 'back.out(1.4)',
+                        scrollTrigger: {
+                            trigger: num,
+                            start: 'top 90%',
+                            once: true
+                        },
+                        delay: i * 0.1
+                    });
+                });
+
+                // Gold dividers: width expansion
+                document.querySelectorAll('.divider').forEach(div => {
+                    if (div.closest('#hero-wrap')) return;
+                    gsap.fromTo(div, {
+                        width: 0,
+                        opacity: 0
+                    }, {
+                        width: 60,
+                        opacity: 1,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: div,
+                            start: 'top 90%',
+                            once: true
+                        }
+                    });
+                });
+            }
+
+            // -------- 7. SPLIT PARALLAX ON GALLERY --------
+            if (!prefersReducedMotion) {
+                // Apply differential parallax to gallery grid columns
+                const galleryItems = document.querySelectorAll('.gallery-item');
+                galleryItems.forEach((item, i) => {
+                    // Odd items (left column on desktop) move slower
+                    // Even items (right column) move faster
+                    const direction = (i % 2 === 0) ? -8 : 8;
+                    gsap.to(item, {
+                        yPercent: direction,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: item,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 0.5
+                        }
+                    });
+                });
+
+                // Apply to event cards as well
+                const eventCards = document.querySelectorAll('.event-card');
+                eventCards.forEach((card, i) => {
+                    const dir = (i % 2 === 0) ? -4 : 4;
+                    gsap.to(card, {
+                        yPercent: dir,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 0.6
+                        }
+                    });
+                });
+
+                // Venue map: gentle internal parallax
+                const mapContainer = document.querySelector('.map-container');
+                if (mapContainer) {
+                    gsap.fromTo(mapContainer, {
+                        clipPath: 'inset(6% 3% 6% 3%)',
+                        scale: 1.04
+                    }, {
+                        clipPath: 'inset(0% 0% 0% 0%)',
+                        scale: 1,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: mapContainer,
+                            start: 'top 90%',
+                            end: 'top 30%',
+                            scrub: 0.5
+                        }
+                    });
+                }
+            }
+
+            // -------- 8. GOLDEN CURSOR SPARKLE (Desktop only) --------
+            const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            if (isDesktop && !prefersReducedMotion) {
+                const sparkleContainer = document.getElementById('cursorSparkle');
+                if (sparkleContainer) {
+                    // Pool of reusable particles
+                    const POOL_SIZE = 20;
+                    const particles = [];
+                    const goldColors = ['#F4DFA0', '#E8CF8A', '#C9A84C'];
+                    for (let i = 0; i < POOL_SIZE; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'sparkle-particle';
+                        sparkleContainer.appendChild(p);
+                        particles.push(p);
+                    }
+                    let particleIndex = 0;
+                    let prevX = 0, prevY = 0;
+                    let moveAccum = 0; // accumulated movement distance
+
+                    document.addEventListener('mousemove', (e) => {
+                        const mx = e.clientX;
+                        const my = e.clientY;
+
+                        // Calculate distance moved since last event
+                        const dx = mx - prevX;
+                        const dy = my - prevY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        prevX = mx;
+                        prevY = my;
+
+                        // Accumulate movement; emit particle every ~12px of movement
+                        moveAccum += dist;
+                        if (moveAccum < 12) return;
+                        moveAccum = 0;
+
+                        // Emit 1-2 particles per trigger
+                        const count = Math.random() > 0.6 ? 2 : 1;
+                        for (let n = 0; n < count; n++) {
+                            const p = particles[particleIndex % POOL_SIZE];
+                            particleIndex++;
+
+                            // 15% chance of a brighter, slightly larger "highlight" sparkle
+                            const isHighlight = Math.random() < 0.15;
+                            const size = isHighlight ? (3 + Math.random() * 1.5) : (2 + Math.random() * 2);
+                            const color = isHighlight ? goldColors[0] : goldColors[Math.floor(Math.random() * 3)];
+                            const offsetX = (Math.random() - 0.5) * 20;
+                            const offsetY = (Math.random() - 0.5) * 20;
+                            const glowSize = isHighlight ? (size + 3) : (size + 1.5);
+                            const glowAlpha = isHighlight ? 0.7 : 0.45;
+
+                            p.style.width = size + 'px';
+                            p.style.height = size + 'px';
+                            p.style.left = (mx + offsetX) + 'px';
+                            p.style.top = (my + offsetY) + 'px';
+                            p.style.background = `radial-gradient(circle, ${color} 0%, rgba(201,168,76,0.3) 100%)`;
+                            p.style.boxShadow = `0 0 ${glowSize}px rgba(232,207,138,${glowAlpha}), 0 0 ${glowSize * 2}px rgba(201,168,76,${glowAlpha * 0.4})`;
+
+                            gsap.killTweensOf(p);
+                            gsap.fromTo(p, {
+                                opacity: isHighlight ? 0.9 : (0.55 + Math.random() * 0.3),
+                                scale: isHighlight ? 1.3 : 1,
+                                x: 0,
+                                y: 0
+                            }, {
+                                opacity: 0,
+                                scale: 0.2,
+                                y: '+=' + (12 + Math.random() * 18),
+                                x: '+=' + ((Math.random() - 0.5) * 14),
+                                duration: 0.4 + Math.random() * 0.4,
+                                ease: 'power2.out',
+                                overwrite: true
+                            });
+                        }
+                    });
+                }
+            }
+
+            // -------- 9. SCROLLTRIGGER REFRESH --------
+            // After all animations are set up, refresh ScrollTrigger
+            ScrollTrigger.refresh();
+
+            console.log('Cinematic scroll enhancements initialized.');
+        }
+
+        // Kick off enhancements after DOM + libraries are ready
+        if (document.readyState === 'complete') {
+            initEnhancements();
+        } else {
+            window.addEventListener('load', initEnhancements);
+        }
+
     </script>
+
+    <!-- CURSOR SPARKLE CONTAINER (desktop only) -->
+    <div id="cursorSparkle" class="cursor-sparkle" aria-hidden="true"></div>
 </body>
 </html>
