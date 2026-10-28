@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500&family=Mrs+Saint+Delafield&family=Noto+Sans+Gurmukhi:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500&family=Mrs+Saint+Delafield&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Yatra+One&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -53,8 +53,16 @@
             font-family: 'Mrs Saint Delafield', cursive;
         }
         
+        .devanagari, .sanskrit {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        
+        .yatra {
+            font-family: 'Yatra One', cursive;
+        }
+        
         .gurmukhi {
-            font-family: 'Noto Sans Gurmukhi', sans-serif;
+            font-family: 'Noto Sans Devanagari', sans-serif;
         }
 
         .eyebrow {
@@ -111,7 +119,7 @@
             }
         }
 
-        /* 1. IK ONKAR OVERLAY */
+        /* 1. GANESHA INVOCATION OVERLAY */
         #ikOverlay {
             position: fixed;
             top: 0;
@@ -125,18 +133,31 @@
             align-items: center;
             z-index: 9999;
             transition: opacity 0.8s ease;
+            text-align: center;
+            padding: 20px;
         }
-        #ikOverlay .ik-symbol {
-            font-size: 5rem;
+        #ikOverlay .ganesha-icon {
+            font-size: clamp(3.2rem, 7vw, 4.8rem);
             color: var(--gold-light);
-            font-family: 'Noto Sans Gurmukhi', sans-serif;
+            margin-bottom: 0.5rem;
             opacity: 0;
             animation: pulseGlow 2s ease-in-out forwards;
+        }
+        #ikOverlay .ik-symbol {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: var(--gold-light);
+            font-family: 'Noto Sans Devanagari', 'Yatra One', serif;
+            font-weight: 600;
+            opacity: 0;
+            animation: pulseGlow 2s ease-in-out forwards;
+            letter-spacing: 0.05em;
         }
         #ikOverlay .ik-text {
             color: var(--gold-light);
             margin-top: 1rem;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-size: 0.9rem;
             opacity: 0;
             animation: fadeIn 1s ease 0.5s forwards;
         }
@@ -362,40 +383,49 @@
             color: var(--ivory);
         }
         #blessing .ik-symbol {
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             color: var(--gold-light);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
-        #blessing .gurmukhi-text {
+        #blessing .shloka-text {
             font-size: 1.5rem;
             color: var(--gold-light);
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-weight: 500;
         }
         #blessing .translation {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-style: italic;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto 1.5rem;
+            line-height: 1.7;
         }
         #blessing .attribution {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
-        /* PHULKARI BAND */
+        /* VEDIC TORAN / BANDHANI BAND */
         .phulkari-band {
-            height: 30px;
+            height: 24px;
             background-color: var(--maroon-deep);
             background-image:
                 repeating-linear-gradient(
-                    135deg,
-                    var(--red) 0px 6px,
-                    var(--gold) 6px 12px,
-                    var(--marigold) 12px 18px,
-                    var(--pink) 18px 24px,
-                    var(--maroon) 24px 30px
+                    90deg,
+                    var(--red) 0px 14px,
+                    var(--gold) 14px 20px,
+                    var(--marigold) 20px 34px,
+                    var(--gold) 34px 40px,
+                    var(--maroon) 40px 54px,
+                    var(--gold-light) 54px 60px
                 );
-            opacity: 0.92;
+            border-top: 1px solid var(--gold);
+            border-bottom: 1px solid var(--gold);
+            opacity: 0.95;
         }
 
         /* 4. WELCOME */
@@ -1121,10 +1151,11 @@
         </div>
     </button>
 
-    <!-- 1. IK ONKAR OVERLAY -->
+    <!-- 1. GANESHA INVOCATION OVERLAY -->
     <div id="ikOverlay">
-        <div class="ik-symbol">ੴ</div>
-        <div class="ik-text">Ik Onkar</div>
+        <div class="ganesha-icon">ॐ</div>
+        <div class="ik-symbol devanagari">॥ श्री गणेशाय नमः ॥</div>
+        <div class="ik-text">Om Shree Ganeshaya Namah</div>
     </div>
 
     <!-- 2. HERO -->
@@ -1155,11 +1186,14 @@
     <!-- 3. BLESSING -->
     <section id="blessing" class="maroon-bg">
         <div class="reveal">
-            <div class="ik-symbol gurmukhi">ੴ</div>
-            <span class="eyebrow" style="color: var(--gold-light);">A Blessing</span>
-            <div class="gurmukhi-text gurmukhi">ਨਾਨਕ ਨਾਮ ਚੜ੍ਹਦੀ ਕਲਾ ॥ ਤੇਰੇ ਭਾਣੇ ਸਰਬੱਤ ਦਾ ਭਲਾ ॥</div>
-            <p class="translation">"Through Naam, may we always rise in Chardi Kala — high spirits — and by Your grace, may there be well-being for all."</p>
-            <span class="attribution">From the teachings of Guru Nanak Ji</span>
+            <div class="ik-symbol devanagari">ॐ</div>
+            <span class="eyebrow" style="color: var(--gold-light);">Divine Blessing</span>
+            <div class="shloka-text devanagari">
+                वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ ।<br>
+                निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा ॥
+            </div>
+            <p class="translation">"O Lord Ganesha of curved trunk and immense radiance, glowing like ten million suns,<br>bless our sacred union and remove all obstacles from our journey forever."</p>
+            <span class="attribution">Ganesh Vandana &middot; Sacred Vedic Invocation</span>
         </div>
     </section>
 
@@ -1170,8 +1204,8 @@
         <div class="reveal">
             <span class="eyebrow">Welcome</span>
             <div class="divider"></div>
-            <p class="lead-text">We are honored to welcome you to our wedding.</p>
-            <p class="body-text">Two families, one celebration — we would be so happy to have you with us as we begin this new chapter, filled with dhol beats, marigold garlands, and everyone we love in one place.</p>
+            <p class="lead-text">We are honored to welcome you to our wedding celebrations.</p>
+            <p class="body-text">Two families united in sacred celebration — we would be overjoyed to have your presence as we begin this divine new chapter, filled with the auspicious tunes of the Shehnai, fragrant marigold garlands, and the loving blessings of all our elders.</p>
         </div>
     </section>
 
@@ -1234,7 +1268,7 @@
             <div class="details-text">
                 August 31, 2026<br>
                 Grand Palace Hall, Shimla<br>
-                Anand Karaj begins at 11:00 AM
+                Vivah Sanskar & Saat Phere begin at 11:00 AM
             </div>
         </div>
     </section>
@@ -1281,19 +1315,19 @@
             <div class="timeline-container">
                 <div class="timeline-event">
                     <div class="timeline-dot">
-                        <!-- Dhol SVG -->
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-4-8h8m-8 4h8m-8-8h8" stroke-linecap="round"/></svg>
+                        <!-- Varmala / Garland SVG -->
+                        <svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9 9 9 0 0 1 9 9 9 9 0 0 1-9 9zm0-3a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" stroke-linecap="round"/><circle cx="12" cy="7" r="1.5"/><circle cx="16" cy="10" r="1.5"/><circle cx="8" cy="10" r="1.5"/><circle cx="12" cy="17" r="1.5"/></svg>
                     </div>
                     <span class="timeline-time">9:00 AM</span>
-                    <h3 class="timeline-title">Baraat & Milni</h3>
+                    <h3 class="timeline-title">Baraat Swagat & Varmala</h3>
                 </div>
                 <div class="timeline-event">
                     <div class="timeline-dot">
-                        <!-- Mandala SVG -->
-                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.07-7.07l-2.83 2.83M7.76 16.24l-2.83 2.83m14.14 0l-2.83-2.83M7.76 7.76L4.93 4.93" stroke-linecap="round"/></svg>
+                        <!-- Sacred Agni / Fire SVG -->
+                        <svg viewBox="0 0 24 24"><path d="M12 2c1 3.5 4 6 4 9a6 6 0 1 1-12 0c0-3 3-5.5 4-9 1 2 2 3 4 0z" stroke-linecap="round"/><path d="M12 12c.5 1.5 2 2.5 2 4a3 3 0 1 1-6 0c0-1.5 1.5-2.5 2-4 .5 1 1 1.5 2 0z"/></svg>
                     </div>
                     <span class="timeline-time">11:00 AM</span>
-                    <h3 class="timeline-title">Anand Karaj</h3>
+                    <h3 class="timeline-title">Vivah Sanskar & Saat Phere</h3>
                 </div>
                 <div class="timeline-event">
                     <div class="timeline-dot">
@@ -1301,7 +1335,7 @@
                         <svg viewBox="0 0 24 24"><path d="M8 8v10h8V8H8zm4-6v4m-3-2h6M6 18h12" stroke-linecap="round"/></svg>
                     </div>
                     <span class="timeline-time">7:00 PM</span>
-                    <h3 class="timeline-title">Reception</h3>
+                    <h3 class="timeline-title">Reception & Dinner</h3>
                 </div>
             </div>
         </div>
@@ -1338,7 +1372,7 @@
                         <div class="swatch" style="background: #C9A84C;"></div>
                         <div class="swatch" style="background: #B33951;"></div>
                     </div>
-                    <p>Vibrant sarees, lehengas, or suits — jewel tones, gota work, and phulkari embroidery are all warmly encouraged.</p>
+                    <p>Traditional Silk Sarees (Banarasi, Kanjeevaram), Lehengas, or Anarkalis — rich jewel tones, Zardozi, Gota Patti, or Bandhani work are warmly encouraged.</p>
                 </div>
                 <div class="dress-col">
                     <h4 class="serif" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--maroon);">Men</h4>
@@ -1347,10 +1381,10 @@
                         <div class="swatch" style="background: #2B2013;"></div>
                         <div class="swatch" style="background: #C9A84C;"></div>
                     </div>
-                    <p>Sherwani, bandhgala, or kurta pyjama with a turban or safa — festive colours over black or white, please.</p>
+                    <p>Sherwani, Bandhgala, or Kurta Pyjama paired with a traditional Safa or Pagdi — festive colours over black or white, please.</p>
                 </div>
             </div>
-            <p class="dress-note">Come ready to dance — comfortable footwear is your best accessory.</p>
+            <p class="dress-note">Come ready to celebrate and dance — comfortable ethnic footwear is recommended.</p>
         </div>
     </section>
 
@@ -1361,15 +1395,15 @@
             <div class="divider"></div>
             <div class="events-grid">
                 <div class="event-card">
-                    <h3>Sangeet</h3>
-                    <p>August 28, 2026<br>7:00 PM Onwards</p>
-                </div>
-                <div class="event-card">
                     <h3>Mehendi</h3>
-                    <p>August 29, 2026<br>3:00 PM</p>
+                    <p>August 28, 2026<br>3:00 PM</p>
                 </div>
                 <div class="event-card">
-                    <h3>Haldi & Vatna</h3>
+                    <h3>Sangeet & Raas</h3>
+                    <p>August 29, 2026<br>7:00 PM Onwards</p>
+                </div>
+                <div class="event-card">
+                    <h3>Haldi & Ubtan</h3>
                     <p>August 30, 2026<br>10:00 AM</p>
                 </div>
             </div>
@@ -1395,9 +1429,9 @@
 
     <section id="gifts" class="ivory-bg">
         <div class="reveal">
-            <span class="eyebrow">Gifts</span>
+            <span class="eyebrow">Aashirwaad & Gifts</span>
             <div class="divider"></div>
-            <p style="max-width: 600px; margin: 0 auto;">Your presence at our wedding is the greatest gift of all — your blessings mean everything to our families. Should you wish to send something more, a shagun envelope box will be at the reception.</p>
+            <p style="max-width: 600px; margin: 0 auto;">Your presence and heartfelt blessings (Aashirwaad) are the greatest gifts to us as we begin this sacred journey together. Should you wish to bestow a traditional token, an Aashirwaad / Shagun box will be available at the reception.</p>
         </div>
     </section>
 
@@ -1485,7 +1519,7 @@
     <!-- 17. CLOSING -->
     <section id="closing">
         <div class="reveal">
-            <div class="ik-symbol gurmukhi">ੴ</div>
+            <div class="ik-symbol devanagari" style="font-size: 2.4rem; letter-spacing: 0.05em;">॥ शुभ विवाह ॥</div>
             <div class="divider" style="background-color: var(--gold-light);"></div>
             
             <div class="closing-image-wrap">
@@ -1948,7 +1982,7 @@ DTSTART:20260831T053000Z
 DTEND:20260831T143000Z
 SUMMARY:Ishaan & Anaya Wedding
 LOCATION:Grand Palace Hall, Mall Road, Shimla, Himachal Pradesh
-DESCRIPTION:Join us to celebrate the wedding of Ishaan & Anaya. Anand Karaj begins at 11:00 AM IST.
+DESCRIPTION:Join us to celebrate the wedding of Ishaan & Anaya. Vivah Sanskar & Saat Phere begin at 11:00 AM IST.
 END:VEVENT
 END:VCALENDAR`;
 
