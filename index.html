@@ -190,6 +190,26 @@
             opacity: 0;
             animation: fadeIn 1s ease 0.5s forwards;
         }
+        #ikOverlay .overlay-tap-hint {
+            color: var(--gold-light);
+            margin-top: 2rem;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.2s forwards, tapPulse 2s ease-in-out 2.2s infinite;
+            cursor: pointer;
+            padding: 0.6rem 1.5rem;
+            border: 1px solid rgba(232,207,138,0.4);
+            border-radius: 50px;
+            transition: background 0.3s;
+        }
+        #ikOverlay .overlay-tap-hint:hover {
+            background: rgba(232,207,138,0.15);
+        }
+        @keyframes tapPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
         @keyframes pulseGlow {
             0% { opacity: 0; text-shadow: 0 0 0 rgba(232,207,138,0); transform: scale(0.95); }
             50% { opacity: 1; text-shadow: 0 0 30px rgba(232,207,138,0.6); transform: scale(1.05); }
@@ -1185,6 +1205,7 @@
         <div class="ganesha-icon">ॐ</div>
         <div class="ik-symbol devanagari">॥ श्री गणेशाय नमः ॥</div>
         <div class="ik-text">Om Shree Ganeshaya Namah</div>
+        <div class="overlay-tap-hint">Tap to Open Invitation 🎶</div>
     </div>
 
     <!-- 2. HERO -->
@@ -1638,7 +1659,7 @@
                 if (overlay.dataset.dismissed) return;
                 overlay.dataset.dismissed = 'true';
                 overlay.style.opacity = '0';
-                // Start music on this user interaction / auto-dismiss
+                // Start music on this user interaction (tap/click = valid gesture for browsers)
                 if (typeof startMusic === 'function') startMusic();
                 setTimeout(() => {
                     overlay.style.display = 'none';
@@ -1649,13 +1670,12 @@
             if (prefersReducedMotion) {
                 overlay.style.display = 'none';
                 openDoors();
-                if (typeof startMusic === 'function') startMusic();
             } else {
-                // Click/tap anywhere on overlay to dismiss early + start music
+                // REQUIRE user tap/click to dismiss overlay — this is the ONLY
+                // reliable way to start audio on mobile (user gesture policy).
                 overlay.addEventListener('click', dismissOverlay);
                 overlay.addEventListener('touchstart', dismissOverlay, { passive: true });
-                // Auto-dismiss after 2.2s
-                setTimeout(dismissOverlay, 2200);
+                // No auto-dismiss timer — wait for user interaction so music can start
             }
 
             createPetals();
@@ -2173,14 +2193,13 @@ END:VCALENDAR`;
             removeAutoplayListeners();
         });
 
-        // Attempt autoplay after a short delay (let page settle)
-        setTimeout(() => {
-            startMusic();
-            // If autoplay was blocked, set up interaction listeners as fallback
-            if (!isPlaying) {
-                addAutoplayListeners();
-            }
-        }, 500);
+        // Attempt autoplay (works on desktop where policy allows it)
+        // On mobile, music starts from overlay tap (dismissOverlay → startMusic)
+        // If that also fails, interaction listeners catch the next user gesture
+        startMusic();
+        if (!isPlaying) {
+            addAutoplayListeners();
+        }
 
         // Trigger initial reveal check
         setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
