@@ -1168,7 +1168,7 @@
 <body>
 
     <!-- AUDIO -->
-    <audio id="bgMusic" src="audio/wedding-music.mp3" loop preload="none"></audio>
+    <audio id="bgMusic" src="audio/wedding-music.mp3" loop preload="auto"></audio>
     <button id="musicBtn" aria-label="Toggle wedding music">
         <svg class="music-icon" viewBox="0 0 24 24">
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -1528,12 +1528,13 @@
                     <label for="rsvpMessage">Message for Nikita & Sahil</label>
                     <textarea id="rsvpMessage" name="message" rows="3" placeholder="Leave a note for the couple..."></textarea>
 
-                    <button type="submit" class="btn-submit">Send RSVP</button>
+                    <button type="submit" class="btn-submit">Send RSVP via WhatsApp</button>
+                    <p style="font-size: 0.8rem; color: var(--charcoal); margin-top: 0.5rem; opacity: 0.7;">📱 Your RSVP will be sent via WhatsApp to the family</p>
                 </form>
                 
                 <div id="rsvpSuccess">
-                    <h3>Thank You</h3>
-                    <p>We can't wait to celebrate with you.</p>
+                    <h3>Thank You 🙏</h3>
+                    <p>Your RSVP has been sent via WhatsApp. We can't wait to celebrate with you!</p>
                 </div>
             </div>
 
@@ -1633,17 +1634,28 @@
             const overlay = document.getElementById('ikOverlay');
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+            function dismissOverlay() {
+                if (overlay.dataset.dismissed) return;
+                overlay.dataset.dismissed = 'true';
+                overlay.style.opacity = '0';
+                // Start music on this user interaction / auto-dismiss
+                if (typeof startMusic === 'function') startMusic();
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    openDoors();
+                }, 800);
+            }
+
             if (prefersReducedMotion) {
                 overlay.style.display = 'none';
                 openDoors();
+                if (typeof startMusic === 'function') startMusic();
             } else {
-                setTimeout(() => {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        openDoors();
-                    }, 800);
-                }, 2200);
+                // Click/tap anywhere on overlay to dismiss early + start music
+                overlay.addEventListener('click', dismissOverlay);
+                overlay.addEventListener('touchstart', dismissOverlay, { passive: true });
+                // Auto-dismiss after 2.2s
+                setTimeout(dismissOverlay, 2200);
             }
 
             createPetals();
@@ -2039,10 +2051,27 @@
             const formData = new FormData(rsvpForm);
             const data = Object.fromEntries(formData.entries());
             
-            // Save to localStorage
+            // Save to localStorage as backup
             let rsvps = JSON.parse(localStorage.getItem('weddingRSVPs') || '[]');
             rsvps.push(data);
             localStorage.setItem('weddingRSVPs', JSON.stringify(rsvps));
+
+            // Build WhatsApp message
+            const attendance = data.attendance === 'accepts' ? '✅ Joyfully Accepts' : '❌ Regretfully Declines';
+            let msg = `🙏 *Wedding RSVP — Nikita & Sahil*\n\n`;
+            msg += `👤 *Name:* ${data.name}\n`;
+            msg += `📋 *Attendance:* ${attendance}\n`;
+            msg += `👥 *Guests:* ${data.guests || 'Not specified'}\n`;
+            msg += `🍽️ *Meal Preference:* ${data.meal || 'No preference'}\n`;
+            msg += `🚗 *Transport:* ${data.transport || 'Not specified'}\n`;
+            if (data.message) {
+                msg += `💌 *Message:* ${data.message}\n`;
+            }
+            msg += `\n— Sent from Wedding Invitation Website`;
+
+            // Open WhatsApp with pre-filled message to family number
+            const whatsappURL = `https://wa.me/919416220647?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappURL, '_blank');
             
             // UI Update
             rsvpForm.style.display = 'none';
