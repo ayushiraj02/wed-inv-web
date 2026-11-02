@@ -1,0 +1,9 @@
+{
+  "name": "wed-inv-web",
+  "version": "1.0.0",
+  "description": "Ishaan & Anaya Wedding Invitation Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
