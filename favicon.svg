@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Radial gradient for maroon badge -->
+    <radialGradient id="maroonGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#9E203E" />
+      <stop offset="60%" stop-color="#7A1830" />
+      <stop offset="100%" stop-color="#3E0C18" />
+    </radialGradient>
+    
+    <!-- Gold gradient for rim and kalash -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEBB3" />
+      <stop offset="35%" stop-color="#E8CF8A" />
+      <stop offset="70%" stop-color="#C9A84C" />
+      <stop offset="100%" stop-color="#997526" />
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Outer background circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#maroonGrad)" stroke="url(#goldGrad)" stroke-width="4" filter="url(#goldGlow)"/>
+
+  <!-- Ornate inner dotted/dashed ring -->
+  <circle cx="64" cy="64" r="54" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="3, 3" opacity="0.85"/>
+
+  <!-- Sacred Kalash (Sacred Pot) Group -->
+  <g fill="url(#goldGrad)" stroke="none">
+    <!-- Mango leaves atop pot -->
+    <path d="M64 26 C68 36, 70 44, 64 50 C58 44, 60 36, 64 26 Z" />
+    <path d="M52 34 C60 38, 64 45, 61 50 C54 48, 48 42, 52 34 Z" opacity="0.95"/>
+    <path d="M76 34 C68 38, 64 45, 67 50 C74 48, 80 42, 76 34 Z" opacity="0.95"/>
+    <path d="M43 42 C52 44, 57 49, 56 53 C49 52, 42 47, 43 42 Z" opacity="0.85"/>
+    <path d="M85 42 C76 44, 71 49, 72 53 C79 52, 86 47, 85 42 Z" opacity="0.85"/>
+
+    <!-- Coconut (Nariyal) sitting on leaves -->
+    <path d="M64 24 C56 32, 56 46, 64 50 C72 46, 72 32, 64 24 Z" opacity="0.9"/>
+    
+    <!-- Kalash Neck / Rim -->
+    <rect x="49" y="52" width="30" height="6" rx="3" />
+    <rect x="52" y="58" width="24" height="4" rx="2" opacity="0.9"/>
+
+    <!-- Kalash Pot Body -->
+    <path d="M52 61 C42 66, 36 78, 42 90 C46 98, 54 100, 64 100 C74 100, 82 98, 86 90 C92 78, 86 66, 76 61 Z" />
+
+    <!-- Kalash Base / Pedestal -->
+    <path d="M48 99 C54 98, 74 98, 80 99 L82 104 C78 105, 50 105, 46 104 Z" />
+  </g>
+
+  <!-- Auspicious Swastik Symbol on the Kalash Body -->
+  <g stroke="#7A1830" stroke-width="2.5" stroke-linecap="square" fill="none">
+    <!-- Center cross -->
+    <line x1="64" y1="71" x2="64" y2="89" />
+    <line x1="55" y1="80" x2="73" y2="80" />
+    <!-- Clockwise hooks -->
+    <line x1="64" y1="71" x2="71" y2="71" />
+    <line x1="73" y1="80" x2="73" y2="87" />
+    <line x1="64" y1="89" x2="57" y2="89" />
+    <line x1="55" y1="80" x2="55" y2="73" />
+  </g>
+
+  <!-- 4 Auspicious Dots (Bindus) in quadrants -->
+  <circle cx="59.5" cy="75.5" r="1.3" fill="#7A1830" />
+  <circle cx="68.5" cy="75.5" r="1.3" fill="#7A1830" />
+  <circle cx="59.5" cy="84.5" r="1.3" fill="#7A1830" />
+  <circle cx="68.5" cy="84.5" r="1.3" fill="#7A1830" />
+</svg>
